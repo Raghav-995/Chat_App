@@ -1,4 +1,8 @@
+import 'dart:io';
+
+import 'package:chatapp/widgets/user_image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
 final _firebase = FirebaseAuth.instance;
@@ -13,16 +17,21 @@ class _AuthScreenState extends State<AuthScreen> {
   var _isLogin = true;
   var _enteredEmail = '';
   var _enteredPassword = '';
+  File? _selectedImage;
+  var _isAuthenticating = false;
 
   final _form = GlobalKey<FormState>();
   void _submit() async {
     var isValid = _form.currentState!.validate();
 
-    if (!isValid) {
+    if (!isValid || !_isLogin || _selectedImage == null) {
       return;
     }
     _form.currentState!.save();
     try {
+      setState(() {
+        _isAuthenticating = true;
+      });
       if (_isLogin) {
         final userCredentials = await _firebase.signInWithEmailAndPassword(
             email: _enteredEmail, password: _enteredPassword);
@@ -30,13 +39,20 @@ class _AuthScreenState extends State<AuthScreen> {
       } else {
         final userCredentials = await _firebase.createUserWithEmailAndPassword(
             email: _enteredEmail, password: _enteredPassword);
+        final imageStorage = FirebaseStorage.instance
+            .ref()
+            .child('User_Images')
+            .child('${userCredentials.user!.uid}.jpg');
+        await imageStorage.putFile(_selectedImage!);
+        final imageUrl = await imageStorage.getDownloadURL;
+        print(imageUrl);
         print(userCredentials);
       }
     } on FirebaseAuthMultiFactorException catch (error) {
       if (error.code == 'email-already-in-use') {}
       ScaffoldMessenger.of(context).clearSnackBars();
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(error.code ?? 'Authentication Failed')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(error.code)));
     }
   }
 
@@ -65,6 +81,12 @@ class _AuthScreenState extends State<AuthScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
+                          if (!_isLogin)
+                            UserImagePicker(
+                              onPickedImage: (pickedImage) {
+                                _selectedImage = pickedImage;
+                              },
+                            ),
                           TextFormField(
                             decoration: const InputDecoration(
                                 labelText: 'Email Address'),
@@ -99,22 +121,25 @@ class _AuthScreenState extends State<AuthScreen> {
                             },
                           ),
                           const SizedBox(height: 12.0),
-                          ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor: Theme.of(context)
-                                      .colorScheme
-                                      .primaryContainer),
-                              onPressed: _submit,
-                              child: Text(_isLogin ? 'Login' : 'Signup')),
-                          TextButton(
-                              onPressed: () {
-                                setState(() {
-                                  _isLogin = !_isLogin;
-                                });
-                              },
-                              child: Text(_isLogin
-                                  ? 'Create an Account'
-                                  : 'I already have an account'))
+                          if (_isAuthenticating) CircularProgressIndicator(),
+                          if (!_isAuthenticating)
+                            ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                    backgroundColor: Theme.of(context)
+                                        .colorScheme
+                                        .primaryContainer),
+                                onPressed: _submit,
+                                child: Text(_isLogin ? 'Login' : 'Signup')),
+                          if (!_isAuthenticating)
+                            TextButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _isLogin = !_isLogin;
+                                  });
+                                },
+                                child: Text(_isLogin
+                                    ? 'Create an Account'
+                                    : 'I already have an account'))
                         ],
                       ),
                     ),
