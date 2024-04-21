@@ -30,10 +30,7 @@ class DefaultFirebaseOptions {
           'you can reconfigure this by running the FlutterFire CLI again.',
         );
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -48,18 +45,18 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyBUVDW4iz90x8LtQoBmd0zcw8Mh0MiVvfc',
-    appId: '1:24220641787:web:d238753042431f891f035e',
+    appId: '1:24220641787:web:5e996e10830d50d81f035e',
     messagingSenderId: '24220641787',
     projectId: 'flutter-http-ece83',
     authDomain: 'flutter-http-ece83.firebaseapp.com',
     databaseURL: 'https://flutter-http-ece83-default-rtdb.firebaseio.com',
     storageBucket: 'flutter-http-ece83.appspot.com',
-    measurementId: 'G-83BEPG3T2E',
+    measurementId: 'G-1CNEP3YRBD',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDwDqeoTVU3PcdTV5ApBM-pdToGQaQvAvc',
-    appId: '1:24220641787:android:8d6c80b85a37b2101f035e',
+    appId: '1:24220641787:android:4d4cbd4c7ec5ba1d1f035e',
     messagingSenderId: '24220641787',
     projectId: 'flutter-http-ece83',
     databaseURL: 'https://flutter-http-ece83-default-rtdb.firebaseio.com',
@@ -77,4 +74,14 @@ class DefaultFirebaseOptions {
     iosBundleId: 'com.example.chatapp',
   );
 
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyBUVDW4iz90x8LtQoBmd0zcw8Mh0MiVvfc',
+    appId: '1:24220641787:web:1b833401a8c5601e1f035e',
+    messagingSenderId: '24220641787',
+    projectId: 'flutter-http-ece83',
+    authDomain: 'flutter-http-ece83.firebaseapp.com',
+    databaseURL: 'https://flutter-http-ece83-default-rtdb.firebaseio.com',
+    storageBucket: 'flutter-http-ece83.appspot.com',
+    measurementId: 'G-LV7YJRZB86',
+  );
 }
