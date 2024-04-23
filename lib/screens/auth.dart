@@ -23,7 +23,7 @@ class _AuthScreenState extends State<AuthScreen> {
   var _isLogin = true;
   var _enteredEmail = '';
   var _enteredPassword = '';
-  var _enteredUserName = '';
+  var _enteredUsername = '';
   File? _selectedImage;
   var _isAuthenticating = false;
 
@@ -55,14 +55,14 @@ class _AuthScreenState extends State<AuthScreen> {
 
         await storageRef.putFile(_selectedImage!);
         final imageUrl = await storageRef.getDownloadURL();
-        print(imageUrl);
+
         await FirebaseFirestore.instance
-            .collection('User')
-            .doc('$userCredentials.user!.uid')
+            .collection('users')
+            .doc(userCredentials.user!.uid)
             .set({
-          'userName': _enteredUserName,
+          'username': _enteredUsername,
           'email': _enteredEmail,
-          'imageURL': imageUrl
+          'image_url': imageUrl,
         });
       }
     } on FirebaseAuthException catch (error) {
@@ -111,9 +111,11 @@ class _AuthScreenState extends State<AuthScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           if (!_isLogin)
-                            UserImagePicker(onPickedImage: (pickedImage) {
-                              _selectedImage = pickedImage;
-                            }),
+                            UserImagePicker(
+                              onPickImage: (pickedImage) {
+                                _selectedImage = pickedImage;
+                              },
+                            ),
                           TextFormField(
                             decoration: const InputDecoration(
                                 labelText: 'Email Address'),
@@ -135,19 +137,19 @@ class _AuthScreenState extends State<AuthScreen> {
                           ),
                           if (!_isLogin)
                             TextFormField(
+                              decoration:
+                                  const InputDecoration(labelText: 'Username'),
+                              enableSuggestions: false,
                               validator: (value) {
                                 if (value == null ||
                                     value.isEmpty ||
                                     value.trim().length < 4) {
-                                  return 'Username must be > 4 characters';
+                                  return 'Please enter at least 4 characters.';
                                 }
                                 return null;
                               },
-                              enableSuggestions: false,
-                              decoration:
-                                  const InputDecoration(labelText: 'UserName'),
                               onSaved: (value) {
-                                _enteredUserName = value!;
+                                _enteredUsername = value!;
                               },
                             ),
                           TextFormField(
